@@ -5,22 +5,15 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
-import { getAuthHeader } from "@/lib/auth";
 import { formatDistanceToNow } from "date-fns";
+import { api, Post, User } from "@/lib/api";
 
-interface Post {
-  id: string;
-  title: string;
-  content: string;
-  author: {
-    name: string;
-    picture?: string;
-  };
-  createdAt: string;
+interface PostWithAuthor extends Post {
+  author: User;
 }
 
 export default function PostsPage() {
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<PostWithAuthor[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -31,17 +24,17 @@ export default function PostsPage() {
 
   const fetchPosts = async () => {
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/posts?page=${page}&limit=10`,
-        {
-          headers: {
-            ...getAuthHeader(),
-          },
-        }
-      );
-      const data = await response.json();
-      setPosts(prev => page === 1 ? data.posts : [...prev, ...data.posts]);
-      setHasMore(data.hasMore);
+      const newPosts = await api.posts.getAll(page, 10);
+      const uniqueUserIds = Array.from(new Set(newPosts.map(post => post.userId)));
+      const users = await api.users.getByIds(uniqueUserIds);
+      
+      const postsWithAuthors = newPosts.map(post => ({
+        ...post,
+        author: users.find(user => user.id === post.userId)!
+      }));
+
+      setPosts(prev => page === 1 ? postsWithAuthors : [...prev, ...postsWithAuthors]);
+      setHasMore(newPosts.length === 10);
     } catch (error) {
       console.error("Failed to fetch posts:", error);
     } finally {
@@ -97,11 +90,11 @@ export default function PostsPage() {
               <CardDescription className="flex items-center gap-2">
                 <span>By {post.author.name}</span>
                 <span>•</span>
-                <span>{formatDistanceToNow(new Date(post.createdAt))} ago</span>
+                <span>{post.author.email}</span>
               </CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
-              <p className="text-muted-foreground line-clamp-3">{post.content}</p>
+              <p className="text-muted-foreground line-clamp-3">{post.body}</p>
             </CardContent>
             <CardFooter>
               <Button variant="outline" asChild className="w-full">

@@ -37,33 +37,51 @@ export const api = {
     },
 
     create: async (data: Omit<Post, 'id'>): Promise<Post> => {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json'
+      };
+
+      const authHeader = getAuthHeader();
+      if (authHeader.Authorization) {
+        headers.Authorization = authHeader.Authorization;
+      }
+
       const response = await fetch(`${API_URL}/posts`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...getAuthHeader(),
-        },
+        headers,
         body: JSON.stringify(data),
       });
       return response.json();
     },
 
     update: async (id: string, data: Partial<Post>): Promise<Post> => {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json'
+      };
+
+      const authHeader = getAuthHeader();
+      if (authHeader.Authorization) {
+        headers.Authorization = authHeader.Authorization;
+      }
+
       const response = await fetch(`${API_URL}/posts/${id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          ...getAuthHeader(),
-        },
+        headers,
         body: JSON.stringify(data),
       });
       return response.json();
     },
 
     delete: async (id: string): Promise<void> => {
+      const headers: Record<string, string> = {};
+      const authHeader = getAuthHeader();
+      if (authHeader.Authorization) {
+        headers.Authorization = authHeader.Authorization;
+      }
+
       await fetch(`${API_URL}/posts/${id}`, {
         method: 'DELETE',
-        headers: getAuthHeader(),
+        headers,
       });
     },
   },
@@ -75,12 +93,18 @@ export const api = {
     },
 
     create: async (data: Omit<Comment, 'id'>): Promise<Comment> => {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json'
+      };
+
+      const authHeader = getAuthHeader();
+      if (authHeader.Authorization) {
+        headers.Authorization = authHeader.Authorization;
+      }
+
       const response = await fetch(`${API_URL}/comments`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...getAuthHeader(),
-        },
+        headers,
         body: JSON.stringify(data),
       });
       return response.json();

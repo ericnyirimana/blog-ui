@@ -12,6 +12,8 @@ interface AuthHeader {
 }
 
 export function getUser(): User | null {
+  if (typeof window === 'undefined') return null;
+  
   const token = localStorage.getItem("token");
   if (!token) return null;
   
@@ -30,7 +32,7 @@ export async function logout() {
   localStorage.removeItem("token");
 }
 
-export function getAuthHeader(): AuthHeader {
-  const token = localStorage.getItem("token");
+export function getAuthHeader(): { Authorization?: string } {
+  const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
   return token ? { Authorization: `Bearer ${token}` } : {};
 }

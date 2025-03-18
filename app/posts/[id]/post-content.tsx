@@ -23,8 +23,12 @@ export function PostContent({ id }: { id: string }) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const currentUser = getUser();
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const { register, handleSubmit, reset, formState: { errors } } = useForm<{ body: string }>();
+
+  useEffect(() => {
+    setCurrentUser(getUser());
+  }, []);
 
   useEffect(() => {
     fetchPost();

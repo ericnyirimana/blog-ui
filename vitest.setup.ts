@@ -6,6 +6,11 @@ import { fetch } from 'undici';
 // Add fetch to global scope with proper type casting
 global.fetch = fetch as unknown as typeof global.fetch;
 
+// Mock process.env
+process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID = 'test-client-id';
+process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co';
+process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-anon-key';
+
 // Runs a cleanup after each test case
 afterEach(() => {
   cleanup();
@@ -44,4 +49,15 @@ vi.mock('next/navigation', () => ({
     refresh: vi.fn(),
   }),
   usePathname: () => '/',
+  useSearchParams: () => ({
+    get: vi.fn(),
+  }),
+}));
+
+// Mock GoogleOAuthProvider
+vi.mock('@react-oauth/google', () => ({
+  GoogleOAuthProvider: ({ children }: { children: React.ReactNode }) => children,
+  useGoogleLogin: () => ({
+    login: vi.fn(),
+  }),
 }));

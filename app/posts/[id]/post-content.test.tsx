@@ -4,17 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
 import { PostContent } from './post-content';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import {API_URL} from '@/lib/constant';
-
-// Mock the Card components
-vi.mock('@/components/ui/card', () => ({
-  Card: ({ children, className }: any) => <div data-testid="card" className={className}>{children}</div>,
-  CardHeader: ({ children }: any) => <div data-testid="card-header">{children}</div>,
-  CardContent: ({ children }: any) => <div data-testid="card-content">{children}</div>,
-  CardTitle: ({ children }: any) => <div data-testid="card-title">{children}</div>,
-  CardDescription: ({ children }: any) => <div data-testid="card-description">{children}</div>
-}));
+import {API_URL} from '@/lib/constant'
 
 const mockUser = {
   id: '1',
@@ -54,8 +44,16 @@ const server = setupServer(
   })
 );
 
+// Mock next/navigation
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    back: vi.fn(),
+    push: vi.fn()
+  })
+}));
+
 describe('PostContent', () => {
-  beforeAll(() => server.listen());
+  beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
   afterEach(() => {
     server.resetHandlers();
     window.localStorage.clear();
@@ -129,6 +127,19 @@ describe('PostContent', () => {
 
     await waitFor(() => {
       expect(screen.getByText('New Comment')).toBeInTheDocument();
+    });
+  });
+
+  it('should handle post not found', async () => {
+    server.use(
+      http.get(`${API_URL}/posts/999`, () => {
+        return new HttpResponse(null, { status: 404 });
+      })
+    );
+
+    render(<PostContent id="999" />);
+    await waitFor(() => {
+      expect(screen.getByText('Post not found')).toBeInTheDocument();
     });
   });
 });

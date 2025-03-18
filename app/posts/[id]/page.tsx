@@ -1,9 +1,10 @@
 import { api } from "@/lib/api";
 import { PostContent } from "./post-content";
 
+// Reduce the number of static pages generated
 export async function generateStaticParams() {
-  // Generate paths for posts 1-100 since that's the range of posts in JSONPlaceholder
-  return Array.from({ length: 100 }, (_, i) => ({
+  // Generate only 20 pages instead of 100 to reduce memory usage
+  return Array.from({ length: 20 }, (_, i) => ({
     id: (i + 1).toString(),
   }));
 }

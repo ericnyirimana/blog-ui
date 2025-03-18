@@ -7,5 +7,18 @@
   to = "/index.html"
   status = 200
 
+[build.processing]
+  skip_processing = true
+
 [build.environment]
-  NEXT_PUBLIC_GOOGLE_CLIENT_ID = "mock_client_id"
+  NODE_ENV = "production"
+  NEXT_TELEMETRY_DISABLED = "1"
+
+# Disable secrets scanning for specific paths
+[secrets]
+  SECRETS_SCAN_ENABLED = true
+  SECRETS_SCAN_OMIT_PATHS = [
+    "out/_next/static/chunks/**/*",
+    "out/_next/static/css/**/*",
+    "out/_next/static/media/**/*"
+  ]

@@ -15,6 +15,9 @@ export default function AuthCallback() {
       login(token).then(() => {
         router.push('/posts');
         window.location.reload();
+      }).catch((error) => {
+        console.error('Failed to process login:', error);
+        router.push('/login');
       });
     } else {
       router.push('/login');

@@ -1,3 +1,11 @@
 [build]
-  command = "npm run build && npm run export"
+  command = "npm run build"
   publish = "out"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[build.environment]
+  NEXT_PUBLIC_GOOGLE_CLIENT_ID = "mock_client_id"

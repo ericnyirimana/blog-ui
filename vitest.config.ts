@@ -3,11 +3,22 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 
 export default defineConfig({
-  plugins: [[react()]],
+  plugins: [react()],
   test: {
     environment: 'jsdom',
     setupFiles: ['./vitest.setup.ts'],
-    globals: true
+    globals: true,
+    pool: 'vmThreads',
+    poolOptions: {
+      vmThreads: {
+        useAtomics: true,
+      },
+    },
+    environmentOptions: {
+      jsdom: {
+        resources: 'usable'
+      }
+    }
   },
   resolve: {
     alias: {

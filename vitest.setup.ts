@@ -3,8 +3,8 @@ import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { fetch } from 'undici';
 
-// Add fetch to global scope
-global.fetch = fetch as any;
+// Add fetch to global scope with proper type casting
+global.fetch = fetch as unknown as typeof global.fetch;
 
 // Runs a cleanup after each test case
 afterEach(() => {

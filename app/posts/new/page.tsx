@@ -29,12 +29,12 @@ export default function NewPostPage() {
   const onSubmit = async (data: FormData) => {
     setSubmitting(true);
     try {
-      const post = await api.posts.create({
+      await api.posts.create({
         title: data.title,
         body: data.body,
-        // userId: parseInt(user.id)
+        userId: parseInt(user.id)
       });
-      router.push(`/posts/${post.id}`);
+      router.push('/posts');
     } catch (error) {
       console.error("Failed to create post:", error);
     } finally {

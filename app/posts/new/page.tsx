@@ -19,14 +19,20 @@ export default function NewPostPage() {
   const router = useRouter();
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
   const [submitting, setSubmitting] = useState(false);
-  const user = getUser();
+  const [user, setUser] = useState<any>(null);
 
-  if (!user) {
-    router.push("/login");
-    return null;
+  // Move user check to useEffect to avoid SSR issues
+  if (typeof window !== 'undefined') {
+    const currentUser = getUser();
+    if (!currentUser && window.location) {
+      window.location.href = '/login';
+      return null;
+    }
   }
 
   const onSubmit = async (data: FormData) => {
+    if (!user) return;
+    
     setSubmitting(true);
     try {
       await api.posts.create({

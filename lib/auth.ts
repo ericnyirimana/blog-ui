@@ -7,10 +7,12 @@ interface User {
   picture?: string;
 }
 
+interface AuthHeader {
+  Authorization?: string;
+}
+
 export function getUser(): User | null {
-  if (typeof window === 'undefined') return null;
-  
-  const token = window.localStorage.getItem("token");
+  const token = localStorage.getItem("token");
   if (!token) return null;
   
   try {
@@ -21,20 +23,14 @@ export function getUser(): User | null {
 }
 
 export async function login(token: string) {
-  if (typeof window !== 'undefined') {
-    window.localStorage.setItem("token", token);
-  }
+  localStorage.setItem("token", token);
 }
 
 export async function logout() {
-  if (typeof window !== 'undefined') {
-    window.localStorage.removeItem("token");
-  }
+  localStorage.removeItem("token");
 }
 
-export function getAuthHeader() {
-  if (typeof window === 'undefined') return {};
-  
-  const token = window.localStorage.getItem("token");
+export function getAuthHeader(): AuthHeader {
+  const token = localStorage.getItem("token");
   return token ? { Authorization: `Bearer ${token}` } : {};
 }

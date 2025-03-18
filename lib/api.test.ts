@@ -2,30 +2,31 @@ import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest';
 import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
 import { api } from './api';
+import {API_URL} from '@/lib/constant';
 
 const server = setupServer(
   // Mock posts endpoints
-  http.get('https://jsonplaceholder.typicode.com/posts', () => {
+  http.get(`${API_URL}/posts`, () => {
     return HttpResponse.json([
       { id: 1, title: 'Test Post', body: 'Test Content', userId: 1 }
     ]);
   }),
   
-  http.get('https://jsonplaceholder.typicode.com/posts/1', () => {
+  http.get(`${API_URL}/posts/1`, () => {
     return HttpResponse.json(
       { id: 1, title: 'Test Post', body: 'Test Content', userId: 1 }
     );
   }),
 
   // Mock comments endpoints
-  http.get('https://jsonplaceholder.typicode.com/posts/1/comments', () => {
+  http.get(`${API_URL}/posts/1/comments`, () => {
     return HttpResponse.json([
       { id: 1, postId: 1, name: 'Test User', email: 'test@example.com', body: 'Test Comment' }
     ]);
   }),
 
   // Mock users endpoints
-  http.get('https://jsonplaceholder.typicode.com/users/1', () => {
+  http.get(`${API_URL}/users/1`, () => {
     return HttpResponse.json(
       { id: 1, name: 'Test User', email: 'test@example.com', username: 'testuser' }
     );
@@ -57,7 +58,7 @@ describe('API Client', () => {
       };
 
       server.use(
-        http.post('https://jsonplaceholder.typicode.com/posts', () => {
+        http.post(`${API_URL}/posts`, () => {
           return HttpResponse.json({ id: 2, ...newPost });
         })
       );
@@ -84,7 +85,7 @@ describe('API Client', () => {
       };
 
       server.use(
-        http.post('https://jsonplaceholder.typicode.com/comments', () => {
+        http.post(`${API_URL}/comments`, () => {
           return HttpResponse.json({ id: 2, ...newComment });
         })
       );

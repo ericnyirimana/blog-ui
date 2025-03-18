@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { login, logout, getUser } from './auth';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { login, logout, getUser, getAuthHeader } from './auth';
 
 describe('Authentication', () => {
   const mockUser = {
@@ -9,41 +9,73 @@ describe('Authentication', () => {
     picture: 'https://example.com/avatar.jpg'
   };
 
+  const mockToken = btoa(JSON.stringify(mockUser));
+
   beforeEach(() => {
-    // Clear localStorage before each test
-    localStorage.clear();
+    vi.clearAllMocks();
+    window.localStorage.clear();
   });
 
   afterEach(() => {
-    localStorage.clear();
+    window.localStorage.clear();
   });
 
-  it('should store user token on login', async () => {
-    const token = btoa(JSON.stringify(mockUser));
-    await login(token);
-    expect(localStorage.getItem('token')).toBe(token);
+  describe('getUser', () => {
+    it('should return null when no user is logged in', () => {
+      expect(getUser()).toBeNull();
+    });
+
+    it('should return user data when logged in', () => {
+      window.localStorage.setItem('token', mockToken);
+      const user = getUser();
+      expect(user).toEqual(mockUser);
+    });
+
+    it('should handle invalid token', () => {
+      window.localStorage.setItem('token', 'invalid-token');
+      expect(getUser()).toBeNull();
+    });
+
+    it('should return null during SSR', () => {
+      const windowSpy = vi.spyOn(global, 'window', 'get');
+      windowSpy.mockImplementation(() => undefined as any);
+      expect(getUser()).toBeNull();
+      windowSpy.mockRestore();
+    });
   });
 
-  it('should remove token on logout', async () => {
-    const token = btoa(JSON.stringify(mockUser));
-    localStorage.setItem('token', token);
-    await logout();
-    expect(localStorage.getItem('token')).toBeNull();
+  describe('login', () => {
+    it('should store user token', async () => {
+      await login(mockToken);
+      expect(window.localStorage.setItem).toHaveBeenCalledWith('token', mockToken);
+    });
   });
 
-  it('should return null when no user is logged in', () => {
-    expect(getUser()).toBeNull();
+  describe('logout', () => {
+    it('should remove token', async () => {
+      window.localStorage.setItem('token', mockToken);
+      await logout();
+      expect(window.localStorage.removeItem).toHaveBeenCalledWith('token');
+    });
   });
 
-  it('should return user data when logged in', () => {
-    const token = btoa(JSON.stringify(mockUser));
-    localStorage.setItem('token', token);
-    const user = getUser();
-    expect(user).toEqual(mockUser);
-  });
+  describe('getAuthHeader', () => {
+    it('should return empty object when no token exists', () => {
+      expect(getAuthHeader()).toEqual({});
+    });
 
-  it('should handle invalid token', () => {
-    localStorage.setItem('token', 'invalid-token');
-    expect(getUser()).toBeNull();
+    it('should return authorization header when token exists', () => {
+      window.localStorage.setItem('token', mockToken);
+      expect(getAuthHeader()).toEqual({
+        Authorization: `Bearer ${mockToken}`
+      });
+    });
+
+    it('should handle SSR', () => {
+      const windowSpy = vi.spyOn(global, 'window', 'get');
+      windowSpy.mockImplementation(() => undefined as any);
+      expect(getAuthHeader()).toEqual({});
+      windowSpy.mockRestore();
+    });
   });
 });

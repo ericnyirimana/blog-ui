@@ -3,38 +3,62 @@
 import { Button } from "@/components/ui/button";
 import { useGoogleLogin } from '@react-oauth/google';
 import { useRouter } from "next/navigation";
+import { LogIn } from "lucide-react";
 import { login } from "@/lib/auth";
+import { useEffect, useState } from "react";
 import {GOOGLE_USER_INFO_URL} from '@/lib/constant'
 
 export function AuthButton() {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const googleLogin = useGoogleLogin({
     onSuccess: async (response) => {
-      // Get user info from Google
-      const userInfo = await fetch(`${GOOGLE_USER_INFO_URL}`, {
-        headers: { Authorization: `Bearer ${response.access_token}` },
-      }).then(res => res.json());
+      try {
+        // Get user info from Google
+        const userInfo = await fetch(GOOGLE_USER_INFO_URL, {
+          headers: { Authorization: `Bearer ${response.access_token}` },
+        }).then(res => res.json());
 
-      // Create a custom token with user info
-      const token = btoa(JSON.stringify({
-        id: userInfo.sub,
-        email: userInfo.email,
-        name: userInfo.name,
-        picture: userInfo.picture
-      }));
+        // Create a custom token with user info
+        const token = btoa(JSON.stringify({
+          id: userInfo.sub,
+          email: userInfo.email,
+          name: userInfo.name,
+          picture: userInfo.picture
+        }));
 
-      // Store the token
-      await login(token);
-      
-      // Redirect to posts page and reload
-      router.push('/posts');
-      window.location.reload();
+        // Store the token
+        await login(token);
+        
+        // Redirect to posts page and reload
+        router.push('/posts');
+        window.location.reload();
+      } catch (error) {
+        console.error('Login Failed:', error);
+      }
     },
     onError: () => {
       console.error('Login Failed');
     }
   });
+
+  if (!mounted) {
+    return (
+      <Button
+        variant="outline"
+        disabled
+        className="flex items-center gap-2 text-base py-6"
+      >
+        <LogIn className="h-5 w-5" />
+        Loading...
+      </Button>
+    );
+  }
 
   return (
     <Button

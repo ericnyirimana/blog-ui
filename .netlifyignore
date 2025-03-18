@@ -1,1 +1,4 @@
-netlify env:ignore NEXT_PUBLIC_GOOGLE_CLIENT_ID
+.next/cache/
+.next/server/
+.next/static/
+out/

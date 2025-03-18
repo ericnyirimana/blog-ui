@@ -5,6 +5,7 @@ import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
 import { PostContent } from './post-content';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {API_URL} from '@/lib/constant';
 
 // Mock the Card components
 vi.mock('@/components/ui/card', () => ({
@@ -22,7 +23,7 @@ const mockUser = {
 };
 
 const server = setupServer(
-  http.get('https://jsonplaceholder.typicode.com/posts/1', () => {
+  http.get(`${API_URL}/posts/1`, () => {
     return HttpResponse.json({
       id: 1,
       title: 'Test Post',
@@ -31,7 +32,7 @@ const server = setupServer(
     });
   }),
 
-  http.get('https://jsonplaceholder.typicode.com/posts/1/comments', () => {
+  http.get(`${API_URL}/posts/1/comments`, () => {
     return HttpResponse.json([
       {
         id: 1,
@@ -43,7 +44,7 @@ const server = setupServer(
     ]);
   }),
 
-  http.get('https://jsonplaceholder.typicode.com/users/1', () => {
+  http.get(`${API_URL}/users/1`, () => {
     return HttpResponse.json({
       id: 1,
       name: 'Post Author',
@@ -103,7 +104,7 @@ describe('PostContent', () => {
     window.localStorage.setItem('token', token);
 
     server.use(
-      http.post('https://jsonplaceholder.typicode.com/comments', () => {
+      http.post(`${API_URL}/comments`, () => {
         return HttpResponse.json({
           id: 2,
           postId: 1,

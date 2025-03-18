@@ -1,6 +1,5 @@
 import { getAuthHeader } from './auth';
-
-const API_URL = 'https://jsonplaceholder.typicode.com';
+import {API_URL} from '@/lib/constant';
 
 export interface Post {
   id: number;

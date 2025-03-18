@@ -2,10 +2,9 @@ import { api } from "@/lib/api";
 import { PostContent } from "./post-content";
 
 export async function generateStaticParams() {
-  // Get all posts for static generation
-  const posts = await api.posts.getAll(1, 100);
-  return posts.map((post) => ({
-    id: post.id.toString(),
+  // Generate paths for posts 1-100 since that's the range of posts in JSONPlaceholder
+  return Array.from({ length: 100 }, (_, i) => ({
+    id: (i + 1).toString(),
   }));
 }
 

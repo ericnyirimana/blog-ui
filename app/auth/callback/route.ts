@@ -6,7 +6,7 @@ export async function GET(request: Request) {
 
   if (token) {
     // Set the token in a cookie or localStorage
-    return NextResponse.redirect(requestUrl.origin);
+    return NextResponse.redirect(`${requestUrl.origin}/posts`);
   }
 
   return NextResponse.redirect(`${requestUrl.origin}/login`);

@@ -1,7 +1,5 @@
 "use client";
 
-import { jwtDecode } from "jwt-decode";
-
 interface User {
   id: string;
   email: string;
@@ -10,25 +8,33 @@ interface User {
 }
 
 export function getUser(): User | null {
-  const token = localStorage.getItem("token");
+  if (typeof window === 'undefined') return null;
+  
+  const token = window.localStorage.getItem("token");
   if (!token) return null;
   
   try {
-    return jwtDecode(token) as User;
+    return JSON.parse(atob(token)) as User;
   } catch {
     return null;
   }
 }
 
 export async function login(token: string) {
-  localStorage.setItem("token", token);
+  if (typeof window !== 'undefined') {
+    window.localStorage.setItem("token", token);
+  }
 }
 
 export async function logout() {
-  localStorage.removeItem("token");
+  if (typeof window !== 'undefined') {
+    window.localStorage.removeItem("token");
+  }
 }
 
 export function getAuthHeader() {
-  const token = localStorage.getItem("token");
+  if (typeof window === 'undefined') return {};
+  
+  const token = window.localStorage.getItem("token");
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
